@@ -1,0 +1,17 @@
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-CORS==4.0.0
+python-dotenv==1.0.0
+openai==1.58.1
+wikipedia==1.4.0
+requests==2.32.3
+aiohttp==3.11.11
+asyncio==3.4.3
+Pillow==11.1.0
+
+# Database (psycopg3 - más moderno y compatible con Python 3.14)
+psycopg>=3.2
+
+# Cache
+redis==5.0.1
+flask-caching==2.1.0

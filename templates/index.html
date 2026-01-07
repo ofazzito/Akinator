@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akinator - Adivina tu Personaje</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Partículas de fondo -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div id="heroSection" class="hero-section">
+            <div class="logo-container">
+                <div class="logo">🔮</div>
+                <h1 class="title">Akinator</h1>
+            </div>
+            <p class="subtitle">Piensa en un personaje y yo lo adivinaré</p>
+            <button class="btn btn-primary btn-large" onclick="startGame()">
+                <span>Comenzar Juego</span>
+                <span class="btn-icon">✨</span>
+            </button>
+            <div class="stats-preview" id="statsPreview">
+                <div class="stat-item">
+                    <span class="stat-value">-</span>
+                    <span class="stat-label">Personajes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">-</span>
+                    <span class="stat-label">Partidas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">-</span>
+                    <span class="stat-label">Precisión</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Section -->
+        <div id="gameSection" class="game-section hidden">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Pregunta 1</div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-icon">🤔</div>
+                <h2 class="question-text" id="questionText">Cargando pregunta...</h2>
+                <div class="candidates-info" id="candidatesInfo">
+                    <span id="candidatesCount">-</span> candidatos posibles
+                </div>
+            </div>
+            
+            <div class="answers-container">
+                <button class="btn btn-answer btn-yes" onclick="answerQuestion('yes')">
+                    <span class="answer-emoji">✅</span>
+                    <span class="answer-text">Sí</span>
+                </button>
+                <button class="btn btn-answer btn-probably-yes" onclick="answerQuestion('probably_yes')">
+                    <span class="answer-emoji">👍</span>
+                    <span class="answer-text">Probablemente sí</span>
+                </button>
+                <button class="btn btn-answer btn-dont-know" onclick="answerQuestion('dont_know')">
+                    <span class="answer-emoji">🤷</span>
+                    <span class="answer-text">No sé</span>
+                </button>
+                <button class="btn btn-answer btn-probably-no" onclick="answerQuestion('probably_no')">
+                    <span class="answer-emoji">👎</span>
+                    <span class="answer-text">Probablemente no</span>
+                </button>
+                <button class="btn btn-answer btn-no" onclick="answerQuestion('no')">
+                    <span class="answer-emoji">❌</span>
+                    <span class="answer-text">No</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Guess Modal -->
+        <div id="guessModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-icon">🎯</div>
+                <h2 class="modal-title">¡Creo que lo tengo!</h2>
+                <div class="character-card">
+                    <div class="character-avatar">👤</div>
+                    <h3 class="character-name" id="guessedCharacter">-</h3>
+                    <p class="character-description" id="guessedDescription">-</p>
+                </div>
+                <p class="modal-question">¿Es este tu personaje?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-success" onclick="confirmGuess(true)">
+                        <span>✓ Sí, correcto</span>
+                    </button>
+                    <button class="btn btn-error" onclick="confirmGuess(false)">
+                        <span>✗ No, no es</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Result Modal -->
+        <div id="resultModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-icon" id="resultIcon">🎉</div>
+                <h2 class="modal-title" id="resultTitle">¡Éxito!</h2>
+                <p class="modal-message" id="resultMessage">Adiviné tu personaje correctamente</p>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <span class="result-stat-value" id="questionsUsed">-</span>
+                        <span class="result-stat-label">Preguntas usadas</span>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary" onclick="resetGame()">
+                        <span>Jugar de nuevo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Character Modal -->
+        <div id="addCharacterModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-icon">➕</div>
+                <h2 class="modal-title">Agregar Nuevo Personaje</h2>
+                <p class="modal-message">¡Ayúdame a aprender! Cuéntame sobre tu personaje</p>
+                
+                <form id="addCharacterForm" class="character-form">
+                    <div class="form-group">
+                        <label for="characterName">Nombre del personaje</label>
+                        <input type="text" id="characterName" class="form-input" placeholder="Ej: Spider-Man" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="characterDescription">Descripción (opcional)</label>
+                        <textarea id="characterDescription" class="form-input" rows="3" placeholder="Ej: Superhéroe con poderes de araña"></textarea>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>Responde estas preguntas sobre el personaje:</h3>
+                        <div id="characterQuestions" class="character-questions">
+                            <!-- Se llenarán dinámicamente -->
+                        </div>
+                    </div>
+                    
+                    <div class="modal-buttons">
+                        <button type="submit" class="btn btn-success">
+                            <span>Agregar Personaje</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="closeAddCharacterModal()">
+                            <span>Cancelar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confetti Container -->
+    <canvas id="confetti"></canvas>
+    
+    <script src="/static/js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Dependencias adicionales para producción
+
+# Servidor WSGI
+gunicorn==21.2.0
+gevent==23.9.1
+
+# Base de datos
+psycopg2-binary==2.9.9
+
+# Monitoreo y logging
+sentry-sdk[flask]==1.39.2
+
+# Caché
+redis==5.0.1
+flask-caching==2.1.0
+
+# Seguridad
+python-dotenv==1.0.0

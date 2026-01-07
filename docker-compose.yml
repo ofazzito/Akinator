@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  # ===== Base de datos PostgreSQL =====
+  db:
+    image: postgres:17-alpine
+    container_name: akinator_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-akinator}
+      POSTGRES_USER: ${POSTGRES_USER:-akinator}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-akinator_password_change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-akinator}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - akinator_network
+
+  # ===== Redis para caché y sesiones =====
+  redis:
+    image: redis:7-alpine
+    container_name: akinator_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password_change_me}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - akinator_network
+
+  # ===== Aplicación Flask (Desarrollo) =====
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: akinator_app
+    restart: unless-stopped
+    environment:
+      # Flask
+      FLASK_ENV: ${FLASK_ENV:-development}
+      FLASK_DEBUG: ${FLASK_DEBUG:-1}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-akinator}:${POSTGRES_PASSWORD:-akinator_password_change_me}@db:5432/${POSTGRES_DB:-akinator}
+
+      # Redis
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_password_change_me}@redis:6379/0
+
+      # OpenAI
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+
+      # App settings
+      MAX_CONCURRENT_BATCH: ${MAX_CONCURRENT_BATCH:-5}
+    volumes:
+      # Código en desarrollo (hot reload)
+      - ./backend:/app/backend
+      - ./static:/app/static
+      - ./templates:/app/templates
+      # Persistir imágenes
+      - images_data:/app/static/images/characters
+      # Persistir base de datos SQLite (si se usa)
+      - ./backend/database.db:/app/backend/database.db
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - akinator_network
+    command: python backend/app.py
+
+  # ===== PgAdmin (Opcional - solo desarrollo) =====
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: akinator_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@akinator.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - akinator_network
+    profiles:
+      - dev-tools
+
+  # ===== Redis Commander (Opcional - solo desarrollo) =====
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: akinator_redis_commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-redis_password_change_me}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - akinator_network
+    profiles:
+      - dev-tools
+
+# ===== Volúmenes =====
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  images_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# ===== Redes =====
+networks:
+  akinator_network:
+    driver: bridge
