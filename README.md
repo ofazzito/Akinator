@@ -367,7 +367,7 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 
 **Omar Fazzito**  
 📧 Email: ofazzito@yahoo.com.ar  
-🐙 GitHub: [Tu usuario de GitHub]
+🐙 GitHub: ofazzito
 
 ---
 
