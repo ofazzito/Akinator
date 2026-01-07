@@ -24,7 +24,7 @@ RUN uv pip install --system -r requirements.txt
 FROM python:3.13-slim
 
 # Metadata
-LABEL maintainer="tu-email@ejemplo.com"
+LABEL maintainer="Omar Fazzito <ofazzito@yahoo.com.ar>"
 LABEL description="Akinator Clone - Juego de adivinanzas con IA"
 LABEL version="1.0.0"
 

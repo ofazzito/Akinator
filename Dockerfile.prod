@@ -2,7 +2,7 @@
 FROM python:3.13-slim
 
 # Metadata
-LABEL maintainer="tu-email@ejemplo.com"
+LABEL maintainer="Omar Fazzito <ofazzito@yahoo.com.ar>"
 LABEL description="Akinator Clone - Production"
 LABEL version="1.0.0"
 

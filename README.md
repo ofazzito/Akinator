@@ -363,4 +363,12 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 
 ---
 
+## 👤 Autor
+
+**Omar Fazzito**  
+📧 Email: ofazzito@yahoo.com.ar  
+🐙 GitHub: [Tu usuario de GitHub]
+
+---
+
 **¡Disfruta jugando con Akinator!** 🎮✨
